@@ -20,7 +20,7 @@ def init_db():
         conn.commit()
         conn.close()
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def home():
     return redirect("/contact")
 
