@@ -43,7 +43,8 @@ def contact():
 
 @app.route("/thank-you")
 def thank_you():
-    return "Thank you for your message!"
+    return render_template("thank_you.html")
+
 
 if __name__ == "__main__":
     init_db()
