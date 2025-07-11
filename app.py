@@ -22,7 +22,7 @@ def init_db():
 
 @app.route("/")
 def home():
-    return "Hello from Flask on Azure!"
+    return redirect("/contact")
 
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
