@@ -19,10 +19,11 @@
         </tr>
         {% for m in messages %}
         <tr>
-            <td>{{ m.name }}</td>
-            <td>{{ m.email }}</td>
-            <td>{{ m.message }}</td>
-        </tr>
+    <td>{{ m[0] }}</td>
+    <td>{{ m[1] }}</td>
+    <td>{{ m[2] }}</td>
+       </tr>
+
         {% endfor %}
     </table>
 </body>

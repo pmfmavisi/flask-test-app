@@ -41,7 +41,6 @@ def thank_you():
     return render_template("thank_you.html")
 
 @app.route("/messages")
-@app.route("/messages")
 def messages():
     try:
         conn = pyodbc.connect(conn_str)
