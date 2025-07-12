@@ -41,6 +41,7 @@ def thank_you():
     return render_template("thank_you.html")
 
 @app.route("/messages")
+@app.route("/messages")
 def messages():
     try:
         conn = pyodbc.connect(conn_str)
@@ -52,6 +53,7 @@ def messages():
         return f"❌ Could not fetch messages: {e}"
 
     return render_template("messages.html", messages=results)
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
