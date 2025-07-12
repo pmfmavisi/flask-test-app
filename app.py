@@ -1,26 +1,15 @@
 from flask import Flask, render_template, request, redirect
-import sqlite3
+from dotenv import load_dotenv
 import os
+import pyodbc
 
 app = Flask(__name__)
+load_dotenv()
 
-# Create database if it doesn't exist
-def init_db():
-    if not os.path.exists("contact.db"):
-        conn = sqlite3.connect("contact.db")
-        c = conn.cursor()
-        c.execute('''
-            CREATE TABLE contacts (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL,
-                message TEXT NOT NULL
-            )
-        ''')
-        conn.commit()
-        conn.close()
+# Azure SQL connection string
+conn_str = os.getenv("AZURE_SQL_CONNECTION")
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def home():
     return redirect("/contact")
 
@@ -31,11 +20,17 @@ def contact():
         email = request.form["email"]
         message = request.form["message"]
 
-        conn = sqlite3.connect("contact.db")
-        c = conn.cursor()
-        c.execute("INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)", (name, email, message))
-        conn.commit()
-        conn.close()
+        try:
+            conn = pyodbc.connect(conn_str)
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO contacts (name, email, message)
+                VALUES (?, ?, ?)
+            """, (name, email, message))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            return f"❌ Error saving to Azure SQL: {e}"
 
         return redirect("/thank-you")
 
@@ -45,7 +40,18 @@ def contact():
 def thank_you():
     return render_template("thank_you.html")
 
+@app.route("/messages")
+def messages():
+    try:
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+        cursor.execute("SELECT name, email, message FROM contacts")
+        results = cursor.fetchall()
+        conn.close()
+    except Exception as e:
+        return f"❌ Could not fetch messages: {e}"
+
+    return render_template("messages.html", messages=results)
 
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True, host="0.0.0.0", port=5000)
