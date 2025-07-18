@@ -1,9 +1,12 @@
 from flask import Flask, render_template, request, redirect
 from dotenv import load_dotenv
+from flask import Flask
+from flask_cors import CORS
 import os
 import pyodbc
 
 app = Flask(__name__)
+CORS(app)
 load_dotenv()
 
 # Azure SQL connection string
@@ -16,9 +19,15 @@ def home():
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
     if request.method == "POST":
-        name = request.form["name"]
-        email = request.form["email"]
-        message = request.form["message"]
+        if request.is_json:
+            data = request.get_json()
+            name = data.get("name")
+            email = data.get("email")
+            message = data.get("message")
+        else:
+            name = request.form["name"]
+            email = request.form["email"]
+            message = request.form["message"]
 
         try:
             conn = pyodbc.connect(conn_str)
@@ -35,6 +44,7 @@ def contact():
         return redirect("/thank-you")
 
     return render_template("contact.html")
+
 
 @app.route("/thank-you")
 def thank_you():
